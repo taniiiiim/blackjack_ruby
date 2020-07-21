@@ -2,10 +2,6 @@ class Deck
 	
 	def initialize
 		@cards = []
-		deck_made
-		# puts "#{@cards}"
-		# puts 'ここでの組み立てもしている'
-		# puts "#{@cards}"
 	end
 	#山札の作成
 	def deck_made
