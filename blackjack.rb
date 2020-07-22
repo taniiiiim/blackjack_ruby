@@ -16,6 +16,16 @@ require './player'
 			dealer.draw(deck, dealer)
 		end
 		puts "ディーラーの現在の得点は#{dealer.score_count}"
+		if player.score_count == 21
+			puts 'NICE!!!!BLACKJACK!!!!!'
+			exit
+		end
+		if dealer.score_count == 21
+			puts 'dealer BLACKJACK'
+			puts 'あなたの負けです'
+			exit
+		end
+		
 		while true do
 		puts 'hitするならyを、standするならnを入力してください'
 			case gets.chomp
@@ -26,7 +36,7 @@ require './player'
 						puts 'bust!!!残念...あなたの負けです'
 						exit
 					elsif player.score_count == 21
-						puts 'NICE!! BLACKJACK!!!!'
+						puts '21なのでこれ以上引きません！'
 						break
 					end
 					
