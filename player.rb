@@ -59,8 +59,13 @@ class Dealer
 		@dealer_hands = []
 	end
 	#手札をひく
+	def first_draw(deck, dealer)
+		card = deck.draw_card
+		@dealer_hands.push(card)
+	end
 	def draw(deck, dealer)
 		card = deck.draw_card
+		puts "dealerが引いたカードは#{card.show}です"
 		@dealer_hands.push(card)
 	end
 	#スコアの計算
