@@ -3,7 +3,6 @@ class Deck
 	def initialize
 		@cards = []
 		deck_made
-		# puts @cards
 	end
 	#山札の作成
 	def deck_made
