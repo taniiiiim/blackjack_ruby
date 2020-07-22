@@ -1,36 +1,38 @@
+# カードを定義するファイル
+
+require './constants'
+require './error'
+
 class Card
-	
+	attr_accessor :type, :number
+
 	def initialize(type, number)
-		@type = type
-		@number = number
+		begin
+			# typeのバリデーションを行う
+			raise InvalidTypeError unless CARD_TYPES.include?(type)
+			# numberのバリデーションを行う
+			raise InvalidNumberError unless CARD_NUMBERS.include?(number)
+	  	@type = type
+		  @number = number
+		rescue => error
+			error.log
+		end
 	end
-	
-	def show
-		return "#{@type} の #{@number}"
+
+  # カードのnumberとタイプを自己紹介するメソッド
+  def show
+		number + " of " + type
 	end
-	def number
-		return @number
-		
-	end
-	
-	#J, Q, Kを引いたときに10に変換する
-	def change
-	  if @number === 'J' or @number == 'Q' or @number == 'K'
-		return 10
-	  elsif @number == 'A'
-	  	return 1
+
+	# numberを点数に変換するメソッド
+	# J, Q, Kを引いたときに10に変換する。Aのときは一旦1に変換し、手札のscoreの合計値を見て11にするかで10を足すかどうか判断する。
+	def to_score
+	  if FACE_CARD_NUMBERS.include?(number)
+		  FACE_CARD_VALUE
+	  elsif number == ACE_NUMBER
+	  	ACE_VALUES[0]
 	  else
-		return @number.to_i
+		  number.to_i
 	  end
-	end 
-	
-	def change_a
-	  if @number === 'J' or @number == 'Q' or @number == 'K'
-		return 10
-	  elsif @number == 'A'
-	  	return 11
-	  else
-		return @number.to_i
-	  end
-	end 
+	end
 end

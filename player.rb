@@ -1,91 +1,76 @@
+# プレイヤーを定義するファイル
+
 require './deck'
 
 class Player
-	#手札に箱を作る
-	def initialize
-		@hands = []
+	attr_accessor :hands, :score
+
+	def initialize(hands = [], score = 0)
+		@hands = hands
+		@score = score
 	end
-	
-	#一枚一枚取得して、@handsの配列に格納していく
-	def draw(deck, player)
-		card = deck.draw_card
-		@hands.push(card)
-	puts "あなたが引いたカードは#{card.show}です"
+
+	# カードをドローするメソッド
+	def draw_card(deck)
+		card = deck.cards.pop
+		hands.push(card)
+	  cyan_puts "You drew #{card.show}."
+		sleep(1)
 	end
-	
-	#現在の得点の計算
-	def score_count
-		score = 0
-			def card_check #モジュールのようにしても良い
-				@hands.each do |hand|
-					if hand.number.include?('A')
-						return true
-					end
-					
-				end
-				
-				return false
+
+	# 手札の点数を計算するメソッド
+	def calculate_score
+		ace_conut = hands.select{ |hand| hand.number == ACE_NUMBER }.count
+		self.score = hands.map{ |hand| hand.to_score }.inject(:+)
+    if ace_conut > 0
+			# もし手札にエースが存在する場合、全てのエースを1と置いて計算したスコアに足せるだけ10を足す
+			while ace_conut > 0 && self.score + (ACE_VALUES[1] - ACE_VALUES[0]) <= MAX_SCORE
+        self.score += (ACE_VALUES[1] - ACE_VALUES[0])
+				ace_conut -= 1
 			end
-		if card_check
-			@hands.each do |hand|
-				score += hand.change
-			end
-			if score + 10 > 21
-				score = 0
-				@hands.each do |hand|
-					score += hand.change
-				end
-				return score
+		end
+	end
+
+  # 現在のスコアから次のアクションを判定するメソッド
+	def judge
+		if score > MAX_SCORE
+			cyan_puts 'You BUSTED!!!'
+			sleep(1)
+			yellow_puts 'Unfortunately, you lost...'
+			sleep(2)
+			exit
+		elsif score == MAX_SCORE
+			if hands.size == 2
+				# 持ち札が二枚でスコアが21のときはブラックジャック
+				cyan_puts 'NICE!!!!BLACKJACK!!!!!'
+				sleep(1)
+				cyan_puts 'You win!!!!'
+				sleep(2)
+				exit
 			else
-				score = 0
-				@hands.each do |hand|
-					score += hand.change_a
-				end
-				return score
+				# 持ち札が二枚でなくてもスコアが21のときは、もうカードは引かない
+		  	cyan_puts 'Stopped drawing as Your score reached the max value!!!'
+		  	sleep(2)
 			end
-		else
-			@hands.each do |hand|
-				score += hand.change_a
-			end
-			return score
 		end
 	end
-end
 
-
-
-class Dealer
-	def initialize
-		@dealer_hands = []
-	end
-	#手札をひく
-	def first_draw(deck, dealer)
-		card = deck.draw_card
-		@dealer_hands.push(card)
-	end
-	def draw(deck, dealer)
-		card = deck.draw_card
-		puts "dealerが引いたカードは#{card.show}です"
-		@dealer_hands.push(card)
-	end
-	#スコアの計算
-	def score_count
-		score = 0
-		@dealer_hands.each do |dealhand|
-			score += dealhand.change
-		end
-		return score
-	end
-	def score_first
-		return @dealer_hands[0].change
-	end
-	
-	#16までは自動で手札を増やして、17からは引かない
-	def dealer_hand
-		if @dealer_hands <= 16
-			dealer.draw
-		else
-			return 'ディーラーは17以上の手になりました。ここで引くのを終わります'
+  # hit/standの標準入力を受け付け、アクションを条件分岐させるメソッド
+	def hit_or_stand(deck)
+		while score < MAX_SCORE do
+			# スコアが21を超えた場合に終了する
+			cyan_puts 'Put y for hit, or n for stand.'
+			case gets.chomp
+				when 'yes', 'YES', 'y', 'Y'
+					draw_card(deck)
+					calculate_score
+					puts ""
+					cyan_puts "Your score is #{score}."
+					sleep(2)
+					judge
+				when 'no', 'NO', 'n', 'N'
+					break
+			end
 		end
 	end
 end

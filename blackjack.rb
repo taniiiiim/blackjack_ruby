@@ -1,92 +1,94 @@
 require './card'
 require './deck'
 require './player'
-	
-	def start_game
-		player = Player.new
-		dealer = Dealer.new
-		deck = Deck.new
-		deck.shuffle
-		
-		2.times do
-			player.draw(deck, player)
-		end
-		puts "あなたの現在の得点:#{player.score_count}"
-		2.times do
-			dealer.first_draw(deck, dealer)
-		end
-		# puts "ディーラーの現在の得点は#{dealer.score_count}"
-		puts "ディーラーの一枚目の得点:#{dealer.score_first}"
-		if player.score_count == 21
-			sleep(2)
-			puts 'NICE!!!!BLACKJACK!!!!!'
-			exit
-		end
-		if dealer.score_count == 21
-			sleep(2)
-			puts 'dealer BLACKJACK'
-			puts 'あなたの負けです'
-			exit
-		end
-		
-		while true do
-		puts 'hitするならyを、standするならnを入力してください'
-			case gets.chomp
-				when 'yes', 'YES', 'y', 'Y'
-				player.draw(deck, player)
-				puts "現在の得点は:#{player.score_count}"
-					if player.score_count > 21
-						puts 'bust!!!残念...あなたの負けです'
-						sleep(2)
-						exit
-					elsif player.score_count == 21
-						puts '21なのでこれ以上引きません！'
-						sleep(1)
-						break
-					end
-					
-				when 'no', 'NO', 'n', 'N'
-					break
-				
-			end
-		end
-		
-		#次はディーラーのターン
-		puts 'ディーラーのターンが始まります'
-		puts "dealerの現在の得点:#{dealer.score_count}"
-		sleep(1)
-		loop do
-			sleep(1)
-			if dealer.score_count > 21
-				puts 'dealer BUST!!!'
-				puts 'あなたの勝利です'
-				sleep(2)
-				exit
-			elsif dealer.score_count > 16
-				puts 'ディーラーはこれ以上引きません'
-				sleep(1)
-				break
-			end
-			dealer.draw(deck, dealer)
-		end
-		fight(player, dealer)
-		
+require './dealer'
+
+# ゲームを動かすメソッド
+def process
+	player = Player.new
+	dealer = Dealer.new
+	deck = Deck.new
+
+	puts ""
+	green_puts "Let\'s start BLACKJACK!!!"
+	puts ""
+	sleep(2)
+	start_game(player, dealer, deck)
+
+	puts ""
+	cyan_puts "It\'s your turn."
+	puts ""
+	sleep(1)
+	player.hit_or_stand(deck)
+
+	puts ""
+	green_puts "It\'s the dealer\'s turn."
+	puts ""
+	sleep(1)
+	dealer.hit_or_stand(deck)
+
+	puts ""
+  green_puts "It's Battle Time!!!"
+	puts ""
+	sleep(2)
+	battle(player, dealer)
+end
+
+# ゲーム開始時の処理を担当するメソッド
+def start_game(player, dealer, deck)
+	2.times do
+		player.draw_card(deck)
+		dealer.draw_card(deck)
 	end
-	
-		#どちらもバストしなかった場合ここで勝負することに
-	def fight(player, dealer)
-		puts "あなたの得点:#{player.score_count}"
-		puts "ディーラーの得点:#{dealer.score_count}"
-		sleep(1)
-		
-		
-		if player.score_count > dealer.score_count
-			puts 'あなたの勝利です'
-		elsif player.score_count == dealer.score_count
-			puts 'この勝負はpushとなります'
-		elsif player.score_count < dealer.score_count
-			puts 'この勝負はディーラーの勝利です'
-		end
+
+	player.calculate_score
+	cyan_puts "Your score is #{player.score}."
+	sleep(2)
+	dealer.calculate_score
+	yellow_puts "The dealer\'s first card is #{dealer.hands.first.show}."
+	sleep(2)
+
+	player.judge
+	dealer.judge
+end
+
+# 最後の点数比べを担当するメソッド
+def battle(player, dealer)
+	cyan_puts "Your score is #{player.score}."
+	sleep(2)
+	yellow_puts "The dealer's score is #{dealer.score}."
+	sleep(2)
+	puts ""
+	if player.score > dealer.score
+		cyan_puts 'You win!!!!'
+	elsif player.score == dealer.score
+		green_puts 'Draw.'
+	elsif player.score < dealer.score
+		yellow_puts 'You Lost...'
 	end
-puts 'BlackJackを開始します'
-start_game
+	sleep(2)
+end
+
+# 指定した色をつけて標準出力するメソッド
+def colorful_puts(str, color = "\e[0m")
+	print color
+	puts str
+	print "\e[0m"
+end
+
+# シアンをつけて標準出力するメソッド
+def cyan_puts(str)
+  colorful_puts(str, "\e[36m")
+end
+
+# 黄色をつけて標準出力するメソッド
+def yellow_puts(str)
+  colorful_puts(str, "\e[33m")
+end
+
+# 緑色をつけて標準出力するメソッド
+def green_puts(str)
+	colorful_puts(str, "\e[32m")
+end
+
+process

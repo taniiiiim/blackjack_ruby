@@ -1,29 +1,31 @@
+# デッキを定義するファイル
+
+require './card'
+require './constants'
+require './error'
+
 class Deck
-	
-	def initialize
-		@cards = []
-		deck_made
-	end
-	#山札の作成
-	def deck_made
-		for type in ["スペード", "ダイヤ", "クローバー", "ハート"] do
-			for number in ["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"] do
-				card = Card.new(type, number)
-				@cards << card #一つ一つ破壊的に追加していく
-			end
+	attr_accessor :cards
+
+  # 52枚のカードを使うことが前提なので、デフォルト引数にdeck_cardsを置いてしまう。
+	def initialize(cards = self.deck_cards)
+    begin
+			raise InvalidCardError if cards.any?{ |card| card.class != Card }
+			raise OverLimitCardError if cards.size > MAX_CARDS
+  		@cards = cards
+	  rescue => error
+			error.log
 		end
 	end
-	#デッキの初期化 行けているかどうかの確認必要
-	#シャッフルのところの定義を考える
-	def shuffle
-		@cards.shuffle!
-		return @cards
+
+	# 山札を作成するメソッド
+	def deck_cards
+		deck_cards = []
+		CARD_TYPES.each do |type|
+			CARD_NUMBERS.each do |number|
+				deck_cards << Card.new(type, number)
+			end
+		end
+		deck_cards.shuffle!
 	end
-	
-	def draw_card #popで山札から減らしていく
-		@cards.pop
-	end
-	
-	#デッキが10枚以下になったら初期化する
-	
 end
