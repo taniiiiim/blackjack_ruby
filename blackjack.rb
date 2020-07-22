@@ -15,7 +15,8 @@ require './player'
 		2.times do
 			dealer.draw(deck, dealer)
 		end
-		puts "ディーラーの現在の得点は#{dealer.score_count}"
+		# puts "ディーラーの現在の得点は#{dealer.score_count}"
+		puts "ディーラーの一枚目の得点:#{dealer.score_first}"
 		if player.score_count == 21
 			puts 'NICE!!!!BLACKJACK!!!!!'
 			exit

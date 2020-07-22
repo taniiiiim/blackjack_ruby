@@ -71,6 +71,9 @@ class Dealer
 		end
 		return score
 	end
+	def score_first
+		return @dealer_hands[0].change
+	end
 	
 	#16までは自動で手札を増やして、17からは引かない
 	def dealer_hand
